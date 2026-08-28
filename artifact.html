@@ -281,19 +281,63 @@
 </div>
 
 <script>
-  /* ========= ตั้งค่าแบนเนอร์หัวเว็บ =========
-     วางลิงก์รูปตรงนี้ (ต้องเป็นลิงก์รูปโดยตรง ลงท้าย .jpg/.png/.webp)
-     เว้นว่าง "" = ไม่แสดงแบนเนอร์ */
-  const BANNER_URL = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80";
+  /* ========= ตั้งค่าแหล่งข้อมูลจากชีต =========
+     นำลิงก์ CSV ที่ได้จาก Google Sheet (File → Share → Publish to web → เลือกชีต → CSV)
+     มาวางตรงนี้ เว็บจะอ่านแถว type=config, title=banner แล้วเอาค่าในคอลัมน์ link มาเป็นรูปแบนเนอร์ */
+  const SHEET_CSV_URL = ""; // <-- วางลิงก์ CSV ที่เผยแพร่ตรงนี้
 
-  (function initBanner() {
+  /* รูปสำรอง: ใช้เมื่อยังไม่ได้ตั้ง SHEET_CSV_URL หรือโหลดชีตไม่ได้ ("" = ไม่แสดง) */
+  const BANNER_URL_FALLBACK = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80";
+
+  function setBanner(url) {
     const img = document.getElementById('site-banner');
     if (!img) return;
-    if (BANNER_URL) {
-      img.src = BANNER_URL;
+    if (url) {
+      img.src = url;
       img.onerror = () => { img.style.display = 'none'; };
     } else {
       img.style.display = 'none';
+    }
+  }
+
+  /* ตัวแยกข้อมูล CSV แบบรองรับเครื่องหมายคำพูดและคอมมาในข้อความ */
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (c === '"') { inQuotes = false; }
+        else { field += c; }
+      } else {
+        if (c === '"') { inQuotes = true; }
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c === '\r') { /* ข้าม */ }
+        else { field += c; }
+      }
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  (async function initFromSheet() {
+    if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); return; }
+    try {
+      const res = await fetch(SHEET_CSV_URL);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      const header = rows.shift().map(h => h.trim());
+      const idx = name => header.indexOf(name);
+      const bannerRow = rows.find(r =>
+        (r[idx('type')] || '').trim() === 'config' &&
+        (r[idx('title')] || '').trim() === 'banner'
+      );
+      const url = bannerRow ? (bannerRow[idx('link')] || '').trim() : '';
+      setBanner(url || BANNER_URL_FALLBACK);
+    } catch (e) {
+      setBanner(BANNER_URL_FALLBACK);
     }
   })();
 
