@@ -515,23 +515,31 @@
     if (yearEl) yearEl.textContent = new Date().getFullYear();
     const main = document.getElementById('footer-main');
     const linesBox = document.getElementById('footer-lines');
-    const cfg = items.find(r => r.type === 'config' && r.title === 'footer');
-    if (cfg && cfg.detail) main.textContent = cfg.detail;
 
-    // แถวข้อมูลฟุตเตอร์หลายบรรทัด (type=footer) เช่น ที่อยู่ เบอร์โทร อีเมล โซเชียล
-    const lines = items.filter(r => r.type === 'footer' && r.active !== 'FALSE')
-                       .sort((a, b) => (+a.order || 0) - (+b.order || 0));
+    /* รวมทุกบรรทัดฟุตเตอร์: type=footer หรือ config/footer (ปนกันได้)
+       - type=footer  -> ข้อความอยู่คอลัมน์ title
+       - config/footer -> ข้อความอยู่คอลัมน์ detail */
+    const rows = items
+      .filter(r => (r.type === 'footer' || (r.type === 'config' && r.title === 'footer')) && r.active !== 'FALSE')
+      .map(r => ({ text: r.type === 'footer' ? r.title : r.detail, link: r.link, order: +r.order || 0 }))
+      .filter(r => r.text)
+      .sort((a, b) => a.order - b.order);
+
+    if (!rows.length) return;
+
+    // บรรทัดแรก = ชื่อองค์กร (ตัวหนา) ที่เหลือ = บรรทัดย่อย
+    if (main) main.textContent = rows[0].text;
     if (linesBox) {
       linesBox.innerHTML = '';
-      lines.forEach(n => {
+      rows.slice(1).forEach(n => {
         const div = document.createElement('div');
         if (n.link) {
           const a = document.createElement('a');
           a.href = n.link; a.target = '_blank'; a.rel = 'noopener';
-          a.textContent = n.title;
+          a.textContent = n.text;
           div.appendChild(a);
         } else {
-          div.textContent = n.title;
+          div.textContent = n.text;
         }
         linesBox.appendChild(div);
       });
