@@ -245,6 +245,21 @@
     .nav-style-1-header { padding-right: 0; }
   }
 
+  /* ฟุตเตอร์ */
+  .site-footer {
+    flex: 0 0 auto;
+    background: #111827;
+    color: var(--text-dim);
+    text-align: center;
+    padding: clamp(0.9rem, 3vw, 1.4rem) 1rem;
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    border-top: 1px solid #1f2937;
+    line-height: 1.7;
+  }
+  .site-footer a { color: var(--accent); text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
+  .site-footer .footer-main { color: var(--text); font-weight: 600; margin-bottom: 0.25rem; }
+
   .services-inner { text-align: center; padding: 3rem 0; color: var(--text-dim); }
   .services-icon-wrap { display: inline-block; padding: 1rem; border-radius: 9999px; background: rgba(30,58,138,0.3); margin-bottom: 1rem; }
   .services-icon-wrap svg { height: 3rem; width: 3rem; color: #60a5fa; filter: drop-shadow(0 0 10px rgba(96,165,250,0.8)); }
@@ -325,6 +340,12 @@
       </div>
     </div>
   </div>
+
+  <!-- ฟุตเตอร์: ข้อความ/ลิงก์มาจากชีต (config: footer / footer_link) -->
+  <footer id="site-footer" class="site-footer">
+    <div class="footer-main" id="footer-main">องค์กรของเรา</div>
+    <div id="footer-sub">© <span id="footer-year"></span> สงวนลิขสิทธิ์</div>
+  </footer>
 </div>
 
 <script>
@@ -486,8 +507,27 @@
     }
   }
 
+  /* ฟุตเตอร์: ดึงข้อความจากชีต (config title=footer -> detail, ลิงก์ -> link) */
+  function renderFooter(items) {
+    const yearEl = document.getElementById('footer-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+    const cfg = items.find(r => r.type === 'config' && r.title === 'footer');
+    if (!cfg) return;
+    const main = document.getElementById('footer-main');
+    const sub = document.getElementById('footer-sub');
+    if (cfg.detail) main.textContent = cfg.detail;
+    if (cfg.link) {
+      sub.innerHTML = '© ' + new Date().getFullYear() + ' ';
+      const a = document.createElement('a');
+      a.href = cfg.link; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = cfg.detail || 'เว็บไซต์';
+      sub.appendChild(a);
+      sub.appendChild(document.createTextNode(' • สงวนลิขสิทธิ์'));
+    }
+  }
+
   (async function initFromSheet() {
-    if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); return; }
+    if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); renderFooter([]); return; }
     try {
       const res = await fetch(SHEET_CSV_URL);
       const text = await res.text();
@@ -515,8 +555,10 @@
 
       renderNews(items); // แถบข่าวประชาสัมพันธ์
       renderMenu(items); // ถ้ามีเมนูในชีต จะแทนที่เนื้อหาตัวอย่าง
+      renderFooter(items); // ฟุตเตอร์
     } catch (e) {
       setBanner(BANNER_URL_FALLBACK);
+      renderFooter([]); // อย่างน้อยให้ปี © แสดง
     }
   })();
 
