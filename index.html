@@ -384,7 +384,9 @@
     const badge = document.createElement('div');
     const n = String(orderNum).padStart(2, '0');
     badge.className = 'card-num num-' + (['01','02','03','04'][(orderNum - 1) % 4] || '01');
-    badge.textContent = (iconValue && iconValue.trim()) ? iconValue.trim() : n;
+    let label = (iconValue && iconValue.trim()) ? iconValue.trim() : n;
+    if (/^\d+$/.test(label)) label = label.padStart(2, '0'); // ตัวเลขล้วน -> เติม 0 นำหน้า (1 -> 01)
+    badge.textContent = label;
     return badge;
   }
 
