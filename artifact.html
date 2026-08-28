@@ -41,6 +41,15 @@
     flex-direction: column;
   }
 
+  .site-banner {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 28vh;
+    background: #111827;
+  }
+  .site-banner[src=""] { display: none; }
+
   .page-title {
     font-size: clamp(1.1rem, 3.5vw, 1.6rem);
     font-weight: 700;
@@ -201,6 +210,9 @@
 </style>
 
 <div class="wrap">
+  <!-- แบนเนอร์หัวเว็บ: เปลี่ยนรูปได้ที่ตัวแปร BANNER_URL ด้านล่าง (ในแท็ก <script>) -->
+  <img id="site-banner" class="site-banner" src="" alt="แบนเนอร์หัวเว็บ">
+
   <h2 class="page-title">เมนูแท็บองค์กร (เอฟเฟกต์เฟดและเรืองแสง)</h2>
 
   <div class="nav-style-1-container">
@@ -269,6 +281,22 @@
 </div>
 
 <script>
+  /* ========= ตั้งค่าแบนเนอร์หัวเว็บ =========
+     วางลิงก์รูปตรงนี้ (ต้องเป็นลิงก์รูปโดยตรง ลงท้าย .jpg/.png/.webp)
+     เว้นว่าง "" = ไม่แสดงแบนเนอร์ */
+  const BANNER_URL = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80";
+
+  (function initBanner() {
+    const img = document.getElementById('site-banner');
+    if (!img) return;
+    if (BANNER_URL) {
+      img.src = BANNER_URL;
+      img.onerror = () => { img.style.display = 'none'; };
+    } else {
+      img.style.display = 'none';
+    }
+  })();
+
   function openStyle1Tab(tabName) {
     const contentSections = ['about', 'services'];
 
