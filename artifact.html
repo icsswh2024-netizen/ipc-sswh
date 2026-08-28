@@ -50,6 +50,39 @@
   }
   .site-banner[src=""] { display: none; }
 
+  /* แถบข่าวประชาสัมพันธ์ */
+  .news-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    color: #fff;
+    padding: 0.5rem clamp(0.75rem, 3vw, 1.25rem);
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    overflow: hidden;
+  }
+  .news-bar[hidden] { display: none; }
+  .news-label {
+    flex: 0 0 auto;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+  }
+  .news-viewport { position: relative; flex: 1 1 auto; min-width: 0; height: 1.5em; }
+  .news-item {
+    position: absolute;
+    inset: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .news-item.show { opacity: 1; }
+  .news-item a { color: #fff; text-decoration: underline; }
+
   .page-title {
     font-size: clamp(1.1rem, 3.5vw, 1.6rem);
     font-weight: 700;
@@ -222,6 +255,12 @@
 <div class="wrap">
   <!-- แบนเนอร์หัวเว็บ: เปลี่ยนรูปได้ที่ตัวแปร BANNER_URL ด้านล่าง (ในแท็ก <script>) -->
   <img id="site-banner" class="site-banner" src="" alt="แบนเนอร์หัวเว็บ">
+
+  <!-- แถบข่าวประชาสัมพันธ์: เนื้อหามาจากชีต (type=news) -->
+  <div id="news-bar" class="news-bar" hidden>
+    <span class="news-label">📢 ข่าวประชาสัมพันธ์</span>
+    <div id="news-viewport" class="news-viewport"></div>
+  </div>
 
   <div class="nav-style-1-container">
     <div class="nav-style-1-header">
@@ -412,6 +451,39 @@
     });
   }
 
+  /* สร้างแถบข่าว: สลับข้อความอัตโนมัติทุก 4 วินาที */
+  function renderNews(items) {
+    const bar = document.getElementById('news-bar');
+    const vp = document.getElementById('news-viewport');
+    const news = items.filter(r => r.type === 'news' && r.active !== 'FALSE')
+                      .sort((a, b) => (+a.order || 0) - (+b.order || 0));
+    if (!news.length) { bar.hidden = true; return; }
+    bar.hidden = false;
+    vp.innerHTML = '';
+    news.forEach((n, i) => {
+      const item = document.createElement('div');
+      item.className = 'news-item' + (i === 0 ? ' show' : '');
+      if (n.link) {
+        const a = document.createElement('a');
+        a.href = n.link; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = n.title;
+        item.appendChild(a);
+      } else {
+        item.textContent = n.title;
+      }
+      vp.appendChild(item);
+    });
+    if (news.length > 1) {
+      let cur = 0;
+      const els = vp.querySelectorAll('.news-item');
+      setInterval(() => {
+        els[cur].classList.remove('show');
+        cur = (cur + 1) % els.length;
+        els[cur].classList.add('show');
+      }, 4000);
+    }
+  }
+
   (async function initFromSheet() {
     if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); return; }
     try {
@@ -439,6 +511,7 @@
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
       setBanner((bannerRow && bannerRow.link) || BANNER_URL_FALLBACK);
 
+      renderNews(items); // แถบข่าวประชาสัมพันธ์
       renderMenu(items); // ถ้ามีเมนูในชีต จะแทนที่เนื้อหาตัวอย่าง
     } catch (e) {
       setBanner(BANNER_URL_FALLBACK);
