@@ -383,7 +383,9 @@
         card.appendChild(buildCardIcon(sub.icon, +sub.order || 1));
         const box = document.createElement('div');
         const h4 = document.createElement('h4'); h4.textContent = sub.title;
+        if (sub.title_size) h4.style.fontSize = /^\d+$/.test(sub.title_size) ? sub.title_size + 'px' : sub.title_size;
         const p = document.createElement('p'); p.textContent = sub.detail || '';
+        if (sub.detail_size) p.style.fontSize = /^\d+$/.test(sub.detail_size) ? sub.detail_size + 'px' : sub.detail_size;
         box.appendChild(h4); box.appendChild(p);
         card.appendChild(box);
         section.appendChild(card);
@@ -430,6 +432,8 @@
           icon: (r[idx('icon')] || '').trim(),
           link: (r[idx('link')] || '').trim(),
           active: (r[idx('active')] || '').trim(),
+          title_size: idx('title_size') >= 0 ? (r[idx('title_size')] || '').trim() : '',
+          detail_size: idx('detail_size') >= 0 ? (r[idx('detail_size')] || '').trim() : '',
         }));
 
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
