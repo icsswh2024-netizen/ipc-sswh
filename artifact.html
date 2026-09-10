@@ -207,6 +207,8 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   .card:hover { transform: translateY(-0.5rem); box-shadow: 0 8px 20px rgba(79,172,254,0.3); }
+  a.card { text-decoration: none; cursor: pointer; }
+  a.card:hover { border-color: var(--accent); }
 
   .card-num {
     color: #fff;
@@ -442,8 +444,14 @@
       const subs = items.filter(r => r.parent_id === menu.id && r.type === 'submenu' && r.active !== 'FALSE')
                         .sort((a, b) => (+a.order || 0) - (+b.order || 0));
       subs.forEach(sub => {
-        const card = document.createElement('div');
+        // ถ้ามีลิงก์ -> การ์ดเป็น <a> คลิกได้ (เปิดแท็บใหม่), ถ้าไม่มี -> <div> ธรรมดา
+        const card = document.createElement(sub.link ? 'a' : 'div');
         card.className = 'card';
+        if (sub.link) {
+          card.href = sub.link;
+          card.target = '_blank';
+          card.rel = 'noopener';
+        }
         card.appendChild(buildCardIcon(sub.icon, +sub.order || 1));
         const box = document.createElement('div');
         const h4 = document.createElement('h4'); h4.textContent = sub.title;
