@@ -50,6 +50,15 @@
   }
   .site-banner[src=""] { display: none; }
 
+  /* กรอบฝัง Canva (แถบหัวเว็บแบบสด) */
+  .canva-embed { width: 100%; background: #111827; }
+  .canva-embed iframe {
+    width: 100%;
+    height: clamp(200px, 40vh, 480px);
+    border: 0;
+    display: block;
+  }
+
   /* แถบข่าวประชาสัมพันธ์ */
   .news-bar {
     display: flex;
@@ -361,14 +370,44 @@
   /* รูปสำรอง: ใช้เมื่อยังไม่ได้ตั้ง SHEET_CSV_URL หรือโหลดชีตไม่ได้ ("" = ไม่แสดง) */
   const BANNER_URL_FALLBACK = "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80";
 
+  const isCanva = url => /canva\.(com|link|site)/i.test(url || '');
+
+  /* แปลงลิงก์ Canva เป็นลิงก์สำหรับฝัง (embed) */
+  function canvaEmbedUrl(url) {
+    // ลิงก์แบบ canva.com/design/XXXX/view -> เติม ?embed
+    if (/canva\.com\/design\//i.test(url)) {
+      const base = url.split('?')[0].replace(/\/(view|edit|watch)\b.*$/i, '/view');
+      return base + '?embed';
+    }
+    // ลิงก์ย่อ canva.link/... หรืออื่นๆ ใช้ตามเดิม (Canva จะ redirect เอง)
+    return url;
+  }
+
   function setBanner(url) {
     const img = document.getElementById('site-banner');
     if (!img) return;
-    if (url) {
+    const prev = document.getElementById('canva-embed');
+    if (prev) prev.remove();
+
+    if (!url) { img.style.display = 'none'; return; }
+
+    if (isCanva(url)) {
+      // ฝัง Canva เป็น iframe แทนรูป
+      img.style.display = 'none';
+      const wrap = document.createElement('div');
+      wrap.id = 'canva-embed';
+      wrap.className = 'canva-embed';
+      const iframe = document.createElement('iframe');
+      iframe.src = canvaEmbedUrl(url);
+      iframe.loading = 'lazy';
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.setAttribute('allow', 'fullscreen');
+      wrap.appendChild(iframe);
+      img.insertAdjacentElement('afterend', wrap);
+    } else {
+      img.style.display = 'block';
       img.src = url;
       img.onerror = () => { img.style.display = 'none'; };
-    } else {
-      img.style.display = 'none';
     }
   }
 
