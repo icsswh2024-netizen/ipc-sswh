@@ -368,7 +368,7 @@
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRSTIjsQi_uY7XFY80ijsJA6a6wB4gLfZnMCYGNZJHRbRAfsikfCX4NK1ODERUiPPpLB6U7pJJfNkqW/pub?output=csv";
 
   /* รูปสำรอง: ใช้เมื่อยังไม่ได้ตั้ง SHEET_CSV_URL หรือโหลดชีตไม่ได้ ("" = ไม่แสดง) */
-  const BANNER_URL_FALLBACK = "https://www.canva.com/design/DAHU40JJ40w/mvtSAeSFPvPVHU9S3tO9Jg/view";
+  const BANNER_URL_FALLBACK = ""; // ดึงจากชีตอย่างเดียว ("" = ไม่แสดงถ้าชีตไม่ใส่ลิงก์)
 
   const isCanva = url => /canva\.(com|link|site)/i.test(url || '');
 
