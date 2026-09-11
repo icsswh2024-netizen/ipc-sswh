@@ -50,11 +50,18 @@
   }
   .site-banner[src=""] { display: none; }
 
-  /* กรอบฝัง Canva (แถบหัวเว็บแบบสด) */
-  .canva-embed { width: 100%; background: #111827; }
-  .canva-embed iframe {
+  /* กรอบฝัง Canva (แถบหัวเว็บแบบสด) — อัตราส่วน 16:9 เห็นเต็มดีไซน์ */
+  .canva-embed {
     width: 100%;
-    height: clamp(200px, 40vh, 480px);
+    background: #111827;
+    position: relative;
+    aspect-ratio: 16 / 9;
+  }
+  .canva-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: 0;
     display: block;
   }
