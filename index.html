@@ -374,12 +374,10 @@
 
   /* แปลงลิงก์ Canva เป็นลิงก์สำหรับฝัง (embed) */
   function canvaEmbedUrl(url) {
-    // ลิงก์แบบ canva.com/design/XXXX/view -> เติม ?embed
-    if (/canva\.com\/design\//i.test(url)) {
-      const base = url.split('?')[0].replace(/\/(view|edit|watch)\b.*$/i, '/view');
-      return base + '?embed';
-    }
-    // ลิงก์ย่อ canva.link/... หรืออื่นๆ ใช้ตามเดิม (Canva จะ redirect เอง)
+    // ดึง design ID แล้วสร้าง URL ฝังมาตรฐาน (รองรับลิงก์ที่มี/ไม่มี /view และมี utm ต่อท้าย)
+    const m = url.match(/canva\.com\/design\/([A-Za-z0-9_-]+)/i);
+    if (m) return 'https://www.canva.com/design/' + m[1] + '/view?embed';
+    // ลิงก์ย่อ canva.link/... ใช้ตามเดิม (Canva จะ redirect เอง)
     return url;
   }
 
