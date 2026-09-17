@@ -3,6 +3,8 @@ id,parent_id,type,order,title,detail,icon,link,active,title_size,detail_size,not
 200,,news,1,ยินดีต้อนรับสู่เว็บไซต์องค์กรของเรา,,,,TRUE,,,ข่าวประชาสัมพันธ์ ใส่ข้อความในคอลัมน์ title ใส่ลิงก์ในคอลัมน์ link (ถ้ามี) แถบจะสลับข้อความอัตโนมัติ
 201,,news,2,เปิดรับสมัครงานหลายตำแหน่ง คลิกเพื่อดูรายละเอียด,,,https://example.com,TRUE,,,
 202,,news,3,ประกาศวันหยุดประจำเดือน,,,,TRUE,,,
+300,,slide,1,สไลด์ที่ 1,,,https://www.canva.com/design/XXXXXXXX/YYYYYYYY/view,TRUE,,,สไลด์โชว์หมุนวน: 1 แถว = 1 สไลด์ ใส่ลิงก์ Canva หรือลิงก์รูปในคอลัมน์ link หมุนอัตโนมัติทุก 6 วินาที
+301,,slide,2,สไลด์ที่ 2,,,https://www.canva.com/design/AAAAAAAA/BBBBBBBB/view,TRUE,,,
 101,,config,,footer,ชื่อองค์กรของคุณ,,,TRUE,,,ฟุตเตอร์ (ชื่อองค์กร): ใส่ชื่อในคอลัมน์ detail — ปี © เติมอัตโนมัติ
 110,,footer,1,ที่อยู่: 123 ถนนตัวอย่าง เขต/อำเภอ จังหวัด 10000,,,,TRUE,,,ฟุตเตอร์หลายบรรทัด: 1 แถว = 1 บรรทัด ใส่ข้อความในคอลัมน์ title ใส่ลิงก์ในคอลัมน์ link (ถ้ามี)
 111,,footer,2,โทร: 0X-XXX-XXXX,,,,TRUE,,,

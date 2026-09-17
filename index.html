@@ -66,6 +66,51 @@
     display: block;
   }
 
+  /* กรอบสไลด์โชว์ (ภาพหมุนวน) — ใช้ลิงก์ Canva หรือลิงก์รูป */
+  .slideshow {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 1;
+    background: #111827;
+    overflow: hidden;
+  }
+  .slideshow[hidden] { display: none; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+  }
+  .slide.show { opacity: 1; pointer-events: auto; }
+  .slide iframe, .slide img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+    display: block;
+  }
+  .slide-dots {
+    position: absolute;
+    left: 0; right: 0; bottom: 0.6rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    z-index: 2;
+  }
+  .slide-dot {
+    width: 0.6rem; height: 0.6rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.45);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .slide-dot.active { background: #fff; transform: scale(1.3); }
+
   /* แถบข่าวประชาสัมพันธ์ */
   .news-bar {
     display: flex;
@@ -289,6 +334,9 @@
 <div class="wrap">
   <!-- แบนเนอร์หัวเว็บ: เปลี่ยนรูปได้ที่ตัวแปร BANNER_URL ด้านล่าง (ในแท็ก <script>) -->
   <img id="site-banner" class="site-banner" src="" alt="แบนเนอร์หัวเว็บ">
+
+  <!-- กรอบสไลด์โชว์ (ภาพหมุนวน): มาจากชีต type=slide -->
+  <div id="slideshow" class="slideshow" hidden></div>
 
   <!-- แถบข่าวประชาสัมพันธ์: เนื้อหามาจากชีต (type=news) -->
   <div id="news-bar" class="news-bar" hidden>
@@ -529,6 +577,64 @@
     });
   }
 
+  /* สร้างสไลด์โชว์ (ภาพหมุนวน): แต่ละสไลด์เป็น Canva iframe หรือรูป */
+  function renderSlides(items) {
+    const box = document.getElementById('slideshow');
+    if (!box) return;
+    const slides = items.filter(r => r.type === 'slide' && r.active !== 'FALSE')
+                        .sort((a, b) => (+a.order || 0) - (+b.order || 0))
+                        .filter(r => r.link);
+    if (!slides.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = '';
+
+    slides.forEach((s, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'slide' + (i === 0 ? ' show' : '');
+      if (isCanva(s.link)) {
+        const iframe = document.createElement('iframe');
+        iframe.src = canvaEmbedUrl(s.link);
+        iframe.loading = 'lazy';
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('allow', 'fullscreen');
+        slide.appendChild(iframe);
+      } else {
+        const img = document.createElement('img');
+        img.src = s.link; img.alt = s.title || '';
+        img.onerror = () => { slide.style.display = 'none'; };
+        slide.appendChild(img);
+      }
+      box.appendChild(slide);
+    });
+
+    if (slides.length < 2) return; // สไลด์เดียว ไม่ต้องหมุน
+
+    // จุดบอกตำแหน่ง
+    const dots = document.createElement('div');
+    dots.className = 'slide-dots';
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => go(i));
+      dots.appendChild(dot);
+    });
+    box.appendChild(dots);
+
+    const slideEls = box.querySelectorAll('.slide');
+    const dotEls = dots.querySelectorAll('.slide-dot');
+    let cur = 0, timer = null;
+    function go(idx) {
+      slideEls[cur].classList.remove('show');
+      dotEls[cur].classList.remove('active');
+      cur = (idx + slides.length) % slides.length;
+      slideEls[cur].classList.add('show');
+      dotEls[cur].classList.add('active');
+      restart();
+    }
+    function restart() { clearInterval(timer); timer = setInterval(() => go(cur + 1), 6000); }
+    restart();
+  }
+
   /* สร้างแถบข่าว: สลับข้อความอัตโนมัติทุก 4 วินาที */
   function renderNews(items) {
     const bar = document.getElementById('news-bar');
@@ -626,6 +732,7 @@
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
       setBanner((bannerRow && bannerRow.link) || BANNER_URL_FALLBACK);
 
+      renderSlides(items); // สไลด์โชว์ภาพหมุนวน
       renderNews(items); // แถบข่าวประชาสัมพันธ์
       renderMenu(items); // ถ้ามีเมนูในชีต จะแทนที่เนื้อหาตัวอย่าง
       renderFooter(items); // ฟุตเตอร์
