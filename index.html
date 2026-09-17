@@ -518,6 +518,7 @@
     if (isImageUrl(iconValue)) {
       const img = document.createElement('img');
       img.className = 'card-icon-img';
+      img.loading = 'lazy';
       img.src = toDirectImage(iconValue);
       img.alt = '';
       img.onerror = () => { img.style.display = 'none'; };
@@ -621,24 +622,35 @@
     box.hidden = false;
     box.innerHTML = '';
 
+    // สร้างสไลด์แบบ "โหลดทีละอัน" (lazy) เพื่อไม่ให้ Canva หลายตัวโหลดพร้อมกัน
     slides.forEach((s, i) => {
       const slide = document.createElement('div');
       slide.className = 'slide' + (i === 0 ? ' show' : '');
       if (isCanva(s.link)) {
         const iframe = document.createElement('iframe');
-        iframe.src = canvaEmbedUrl(s.link);
+        iframe.dataset.src = canvaEmbedUrl(s.link); // ยังไม่โหลด จนกว่าจะถึงคิว
         iframe.loading = 'lazy';
         iframe.setAttribute('allowfullscreen', '');
         iframe.setAttribute('allow', 'fullscreen');
         slide.appendChild(iframe);
       } else {
         const img = document.createElement('img');
-        img.src = s.link; img.alt = s.title || '';
+        img.dataset.src = toDirectImage(s.link); img.alt = s.title || '';
+        img.loading = 'lazy';
         img.onerror = () => { slide.style.display = 'none'; };
         slide.appendChild(img);
       }
       box.appendChild(slide);
     });
+
+    // โหลดเนื้อหาของสไลด์เมื่อถึงคิว (โหลดครั้งเดียวแล้วเก็บไว้)
+    function ensureLoaded(idx) {
+      const el = box.querySelectorAll('.slide')[idx];
+      if (!el) return;
+      const media = el.querySelector('iframe, img');
+      if (media && media.dataset.src && !media.src) media.src = media.dataset.src;
+    }
+    ensureLoaded(0); // โหลดสไลด์แรกทันที
 
     if (slides.length < 2) return; // สไลด์เดียว ไม่ต้องหมุน
 
@@ -660,6 +672,7 @@
       slideEls[cur].classList.remove('show');
       dotEls[cur].classList.remove('active');
       cur = (idx + slides.length) % slides.length;
+      ensureLoaded(cur); // โหลดสไลด์นี้ถ้ายังไม่โหลด
       slideEls[cur].classList.add('show');
       dotEls[cur].classList.add('active');
       restart();
