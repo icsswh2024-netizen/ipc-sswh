@@ -50,16 +50,12 @@
   }
   .site-banner[src=""] { display: none; }
 
-  /* กรอบฝัง Canva (แถบหัวเว็บแบบสด) — กรอบขอบมน มีระยะขอบ ไม่เด่นกว่าหัวเว็บ */
+  /* กรอบฝัง Canva (แถบหัวเว็บแบบสด — config banner) เต็มขอบ */
   .canva-embed {
-    width: auto;
+    width: 100%;
     background: #111827;
     position: relative;
     aspect-ratio: 4 / 1; /* ปรับให้ตรงกับสัดส่วนดีไซน์ Canva เพื่อตัดขอบดำ */
-    margin: clamp(0.6rem, 2vw, 1rem);
-    border-radius: clamp(0.75rem, 2vw, 1.25rem);
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
   }
   .canva-embed iframe {
     position: absolute;
