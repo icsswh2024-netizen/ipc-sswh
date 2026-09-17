@@ -279,6 +279,8 @@
   .card:hover { transform: translateY(-0.5rem); box-shadow: 0 8px 20px rgba(79,172,254,0.3); }
   a.card { text-decoration: none; cursor: pointer; }
   a.card:hover { border-color: var(--accent); }
+  .card.has-card-bg h4, .card.has-card-bg p { text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+  .card.has-card-bg p { color: #e5e7eb; }
 
   .card-num {
     color: #fff;
@@ -499,12 +501,23 @@
 
   const isImageUrl = v => /^https?:\/\//i.test((v || '').trim());
 
+  /* แปลงลิงก์ Google Drive ให้เป็นลิงก์รูปตรง (ใช้แสดงเป็นรูป/พื้นหลังได้)
+     รองรับ /file/d/<ID>/view และ ...?id=<ID> */
+  function toDirectImage(url) {
+    url = (url || '').trim();
+    let m = url.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i);
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
+    m = url.match(/drive\.google\.com\/.*[?&]id=([A-Za-z0-9_-]+)/i);
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
+    return url;
+  }
+
   /* สร้างไอคอนของการ์ด: ถ้าเป็นลิงก์รูป -> <img>, ถ้าเป็นเลข/อีโมจิ -> ป้ายสี */
   function buildCardIcon(iconValue, orderNum) {
     if (isImageUrl(iconValue)) {
       const img = document.createElement('img');
       img.className = 'card-icon-img';
-      img.src = iconValue.trim();
+      img.src = toDirectImage(iconValue);
       img.alt = '';
       img.onerror = () => { img.style.display = 'none'; };
       return img;
@@ -554,6 +567,14 @@
           card.href = sub.link;
           card.target = '_blank';
           card.rel = 'noopener';
+        }
+        if (sub.bg) {
+          const url = toDirectImage(sub.bg);
+          card.style.backgroundImage =
+            `linear-gradient(rgba(17,24,39,0.55), rgba(17,24,39,0.72)), url("${url}")`;
+          card.style.backgroundSize = 'cover';
+          card.style.backgroundPosition = 'center';
+          card.classList.add('has-card-bg');
         }
         card.appendChild(buildCardIcon(sub.icon, +sub.order || 1));
         const box = document.createElement('div');
@@ -725,7 +746,7 @@
     // ทับด้วยสีพื้นเข้มเพื่อให้รูปดูจาง อ่านตัวอักษรง่าย
     const veil = 1 - opacity; // ความทึบของแผ่นสีทับ
     document.body.style.backgroundImage =
-      `linear-gradient(rgba(26,32,44,${veil}), rgba(26,32,44,${veil})), url("${cfg.link}")`;
+      `linear-gradient(rgba(26,32,44,${veil}), rgba(26,32,44,${veil})), url("${toDirectImage(cfg.link)}")`;
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundAttachment = 'fixed';
@@ -755,6 +776,7 @@
           active: (r[idx('active')] || '').trim(),
           title_size: idx('title_size') >= 0 ? (r[idx('title_size')] || '').trim() : '',
           detail_size: idx('detail_size') >= 0 ? (r[idx('detail_size')] || '').trim() : '',
+          bg: idx('bg') >= 0 ? (r[idx('bg')] || '').trim() : '',
         }));
 
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
