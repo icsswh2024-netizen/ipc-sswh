@@ -257,7 +257,8 @@
   .fade-content.show { opacity: 1; }
 
   #style1-content-about {
-    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 320px));
+    justify-content: center;
     gap: clamp(1rem, 2vw, 1.5rem);
   }
   #style1-content-about.show { display: grid; }
@@ -553,7 +554,8 @@
       const section = document.createElement('div');
       section.id = 'content-' + menu.id;
       section.className = 'fade-content menu-grid' + (i === 0 ? ' show' : '');
-      section.style.gridTemplateColumns = 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))';
+      section.style.gridTemplateColumns = 'repeat(auto-fit, minmax(min(260px, 100%), 320px))';
+      section.style.justifyContent = 'center'; /* การ์ดกว้างคงที่ ไม่ยืดตามจอ */
       section.style.gap = 'clamp(1rem, 2vw, 1.5rem)';
       if (i === 0) section.style.display = 'grid';
 
