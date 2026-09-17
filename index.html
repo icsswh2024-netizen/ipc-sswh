@@ -50,6 +50,11 @@
   }
   .site-banner[src=""] { display: none; }
 
+  /* เมื่อมีพื้นหลังจางๆ ให้พาเนลโปร่งเล็กน้อยเพื่อให้เห็นภาพลอด (การ์ดยังทึบเพื่ออ่านง่าย) */
+  body.has-bg .nav-style-1-container { background: rgba(45, 55, 72, 0.82); }
+  body.has-bg .content-area { background: rgba(31, 41, 55, 0.72); }
+  body.has-bg .site-footer { background: rgba(17, 24, 39, 0.82); }
+
   /* กรอบฝัง Canva (แถบหัวเว็บแบบสด — config banner) เต็มขอบ */
   .canva-embed {
     width: 100%;
@@ -709,6 +714,24 @@
     }
   }
 
+  /* พื้นหลังจางๆ (รางๆ) จากรูป: config title=background
+     - link = ลิงก์รูป
+     - detail = ความจาง 0-100 (ยิ่งน้อยยิ่งจาง, ค่าเริ่มต้น 12) */
+  function renderBackground(items) {
+    const cfg = items.find(r => r.type === 'config' && r.title === 'background');
+    if (!cfg || !cfg.link) return;
+    const opacity = Math.max(0, Math.min(100, parseFloat(cfg.detail) || 12)) / 100;
+    // ทับด้วยสีพื้นเข้มเพื่อให้รูปดูจาง อ่านตัวอักษรง่าย
+    const veil = 1 - opacity; // ความทึบของแผ่นสีทับ
+    document.body.style.backgroundImage =
+      `linear-gradient(rgba(26,32,44,${veil}), rgba(26,32,44,${veil})), url("${cfg.link}")`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundAttachment = 'fixed';
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.classList.add('has-bg');
+  }
+
   (async function initFromSheet() {
     if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); renderFooter([]); return; }
     try {
@@ -736,6 +759,7 @@
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
       setBanner((bannerRow && bannerRow.link) || BANNER_URL_FALLBACK);
 
+      renderBackground(items); // พื้นหลังจางๆ
       renderSlides(items); // สไลด์โชว์ภาพหมุนวน
       renderNews(items); // แถบข่าวประชาสัมพันธ์
       renderMenu(items); // ถ้ามีเมนูในชีต จะแทนที่เนื้อหาตัวอย่าง
