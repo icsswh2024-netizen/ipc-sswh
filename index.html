@@ -69,11 +69,12 @@
   /* กรอบสไลด์โชว์ (ภาพหมุนวน) — กรอบขอบมน มีระยะขอบ */
   .slideshow {
     position: relative;
-    width: auto;
+    width: 80%;              /* ลดความกว้าง 20% */
+    max-width: 80%;
     aspect-ratio: 5 / 1; /* เตี้ยลง 20% จาก 4:1 */
     background: #111827;
     overflow: hidden;
-    margin: clamp(0.6rem, 2vw, 1rem);
+    margin: clamp(0.6rem, 2vw, 1rem) auto; /* จัดกึ่งกลาง */
     border-radius: clamp(0.75rem, 2vw, 1.25rem);
     box-shadow: 0 4px 12px rgba(0,0,0,0.35);
   }
