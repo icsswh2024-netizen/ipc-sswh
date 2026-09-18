@@ -573,8 +573,12 @@
         }
         if (sub.bg) {
           const url = toDirectImage(sub.bg);
+          // ความเข้มฟิล์มมืด: 0-100 (มาก=มืด/รูปจาง), ค่าเริ่มต้น 60
+          let dim = parseFloat(sub.bg_dim);
+          dim = isNaN(dim) ? 60 : Math.max(0, Math.min(100, dim));
+          const a = dim / 100;
           card.style.backgroundImage =
-            `linear-gradient(rgba(17,24,39,0.55), rgba(17,24,39,0.72)), url("${url}")`;
+            `linear-gradient(rgba(17,24,39,${a}), rgba(17,24,39,${a})), url("${url}")`;
           card.style.backgroundSize = 'cover';
           card.style.backgroundPosition = 'center';
           card.classList.add('has-card-bg');
@@ -792,6 +796,7 @@
           title_size: idx('title_size') >= 0 ? (r[idx('title_size')] || '').trim() : '',
           detail_size: idx('detail_size') >= 0 ? (r[idx('detail_size')] || '').trim() : '',
           bg: idx('bg') >= 0 ? (r[idx('bg')] || '').trim() : '',
+          bg_dim: idx('bg_dim') >= 0 ? (r[idx('bg_dim')] || '').trim() : '',
         }));
 
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
