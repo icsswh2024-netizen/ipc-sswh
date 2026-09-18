@@ -925,6 +925,10 @@
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
       setBanner((bannerRow && bannerRow.link) || BANNER_URL_FALLBACK);
 
+      // ชื่อบนแท็บเบราว์เซอร์: config title=site_title -> detail
+      const st = items.find(r => r.type === 'config' && r.title === 'site_title');
+      if (st && st.detail) document.title = st.detail;
+
       renderLogos(items); // โลโก้มุมซ้ายแถบเมนู
       renderBackground(items); // พื้นหลังจางๆ
       renderSlides(items); // สไลด์โชว์ภาพหมุนวน
