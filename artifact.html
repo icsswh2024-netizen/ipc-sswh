@@ -376,7 +376,12 @@
       gap: 0;
     }
     .logo-box { align-self: center; padding-bottom: 0.15rem; }
-    .nav-style-1-tabs { width: 100%; justify-content: flex-start; }
+    .nav-style-1-tabs {
+      width: 100%;
+      flex-wrap: wrap;          /* ตัดขึ้นบรรทัดใหม่ ไม่ต้องเลื่อน */
+      overflow-x: visible;
+      justify-content: center;  /* จัดแท็บกึ่งกลาง */
+    }
     .search-box { display: none; }  /* ซ่อนช่องค้นหาบนจอแคบ ให้แท็บเห็นครบ */
   }
 
