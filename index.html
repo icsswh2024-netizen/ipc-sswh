@@ -185,12 +185,36 @@
     z-index: 30;
   }
 
+  .nav-left {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .logo-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 0 0 auto;
+    align-self: center;
+    padding: 0 0.4rem 0.4rem;
+  }
+  .logo-box[hidden] { display: none; }
+  .logo-box img {
+    height: clamp(28px, 6vw, 40px);
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+  }
+
   .nav-style-1-tabs {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    min-width: 0;
   }
   .nav-style-1-tabs::-webkit-scrollbar { display: none; }
 
@@ -349,6 +373,8 @@
 <div class="wrap">
   <!-- แถบเมนู (ย้ายมาไว้บนสุด) -->
   <div class="nav-style-1-header">
+   <div class="nav-left">
+    <div id="logo-box" class="logo-box" hidden></div>
     <div class="nav-style-1-tabs" id="style1-tabs">
       <button class="nav-style-1-tab active" data-tab="about" onclick="openStyle1Tab('about')">เกี่ยวกับเรา</button>
       <button class="nav-style-1-tab" data-tab="services" onclick="openStyle1Tab('services')">บริการ</button>
@@ -356,6 +382,7 @@
       <button class="nav-style-1-tab" data-tab="support" onclick="openStyle1Tab('support')">สนับสนุน</button>
       <button class="nav-style-1-tab contact-tab" data-tab="contacts" onclick="openStyle1Tab('contacts')">ติดต่อเรา</button>
     </div>
+   </div>
 
     <div class="search-box">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -776,6 +803,26 @@
     document.body.classList.add('has-bg');
   }
 
+  /* โลโก้มุมซ้ายแถบเมนู: มาจากชีต type=logo (link = ลิงก์รูป, Drive ได้) */
+  function renderLogos(items) {
+    const box = document.getElementById('logo-box');
+    if (!box) return;
+    const logos = items.filter(r => r.type === 'logo' && r.active !== 'FALSE')
+                       .sort((a, b) => (+a.order || 0) - (+b.order || 0))
+                       .filter(r => r.link);
+    if (!logos.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = '';
+    logos.forEach(l => {
+      const img = document.createElement('img');
+      img.src = toDirectImage(l.link);
+      img.alt = l.title || 'โลโก้';
+      img.loading = 'lazy';
+      img.onerror = () => { img.style.display = 'none'; };
+      box.appendChild(img);
+    });
+  }
+
   /* ช่องค้นหา: พิมพ์เพื่อกรองการ์ดตามชื่อ/รายละเอียด (ค้นข้ามทุกแท็บ) */
   function setupSearch() {
     const input = document.querySelector('.search-box input');
@@ -842,6 +889,7 @@
       const bannerRow = items.find(r => r.type === 'config' && r.title === 'banner');
       setBanner((bannerRow && bannerRow.link) || BANNER_URL_FALLBACK);
 
+      renderLogos(items); // โลโก้มุมซ้ายแถบเมนู
       renderBackground(items); // พื้นหลังจางๆ
       renderSlides(items); // สไลด์โชว์ภาพหมุนวน
       renderNews(items); // แถบข่าวประชาสัมพันธ์
