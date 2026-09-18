@@ -194,18 +194,24 @@
   }
   .logo-box {
     display: flex;
-    align-items: center;
-    gap: 0.1rem;          /* โลโก้ติดกัน */
+    flex-direction: column;   /* โลโก้แถวบน + ชื่อล่าง เป็นกลุ่มเดียว */
+    align-items: center;      /* จัดกึ่งกลาง สมดุลซ้าย-ขวา */
+    gap: 2px;
     flex: 0 0 auto;
     align-self: center;
-    padding: 0 0.4rem 0.4rem;
+    padding: 0.25rem 0.5rem 0.4rem;
   }
   .logo-box[hidden] { display: none; }
-  .logo-item {
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 1.25rem);   /* ระยะห่างโลโก้ 2 อัน */
+  }
+  .logo-caps {
     display: flex;
     flex-direction: column;
-    align-items: center;   /* จัดกึ่งกลาง */
-    gap: 2px;
+    align-items: center;
   }
   .logo-box img {
     height: clamp(28px, 6vw, 40px);
@@ -828,25 +834,29 @@
     if (!logos.length) { box.hidden = true; return; }
     box.hidden = false;
     box.innerHTML = '';
+    // แถวโลโก้ (บน) + ชื่อกึ่งกลาง (ล่าง) เป็นกลุ่มเดียวสมดุล
+    const row = document.createElement('div');
+    row.className = 'logo-row';
+    const caps = document.createElement('div');
+    caps.className = 'logo-caps';
     logos.forEach(l => {
-      const item = document.createElement('div');
-      item.className = 'logo-item';
       const img = document.createElement('img');
       img.src = toDirectImage(l.link);
       img.alt = l.title || 'โลโก้';
       img.loading = 'lazy';
       if (l.title_size) img.style.height = /^\d+$/.test(l.title_size) ? l.title_size + 'px' : l.title_size; // ความสูงโลโก้
       img.onerror = () => { img.style.display = 'none'; };
-      item.appendChild(img);
+      row.appendChild(img);
       if (l.title) {
         const cap = document.createElement('span');
         cap.className = 'logo-title';
         cap.textContent = l.title;
         if (l.detail_size) cap.style.fontSize = /^\d+$/.test(l.detail_size) ? l.detail_size + 'px' : l.detail_size; // ขนาดชื่อ
-        item.appendChild(cap);
+        caps.appendChild(cap);
       }
-      box.appendChild(item);
     });
+    box.appendChild(row);
+    if (caps.children.length) box.appendChild(caps);
   }
 
   /* ช่องค้นหา: พิมพ์เพื่อกรองการ์ดตามชื่อ/รายละเอียด (ค้นข้ามทุกแท็บ) */
