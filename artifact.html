@@ -201,11 +201,26 @@
     padding: 0 0.4rem 0.4rem;
   }
   .logo-box[hidden] { display: none; }
+  .logo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* จัดกึ่งกลาง */
+    gap: 2px;
+  }
   .logo-box img {
     height: clamp(28px, 6vw, 40px);
     width: auto;
     display: block;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+  }
+  .logo-title {
+    font-size: clamp(9px, 1.5vw, 12px);
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    line-height: 1.1;
   }
 
   .nav-style-1-tabs {
@@ -814,12 +829,21 @@
     box.hidden = false;
     box.innerHTML = '';
     logos.forEach(l => {
+      const item = document.createElement('div');
+      item.className = 'logo-item';
       const img = document.createElement('img');
       img.src = toDirectImage(l.link);
       img.alt = l.title || 'โลโก้';
       img.loading = 'lazy';
       img.onerror = () => { img.style.display = 'none'; };
-      box.appendChild(img);
+      item.appendChild(img);
+      if (l.title) {
+        const cap = document.createElement('span');
+        cap.className = 'logo-title';
+        cap.textContent = l.title;
+        item.appendChild(cap);
+      }
+      box.appendChild(item);
     });
   }
 
