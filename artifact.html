@@ -362,10 +362,22 @@
     * { transition: none !important; }
   }
 
-  /* จอเล็กมาก (มือถือแนวตั้ง): ซ่อนช่องค้นหาให้แท็บมีพื้นที่พอ */
-  @media (max-width: 480px) {
-    .search-box { display: none; }
-    .nav-style-1-header { padding-right: 0; }
+  /* จอแคบ (แท็บเล็ต/มือถือ): โลโก้ขึ้นบรรทัดบน แท็บเมนูเต็มความกว้างบรรทัดล่าง (เลื่อนดูได้) */
+  @media (max-width: 820px) {
+    .nav-style-1-header {
+      flex-wrap: wrap;
+      align-items: stretch;
+      padding-right: 0;
+    }
+    .nav-left {
+      flex-direction: column;
+      align-items: center;
+      flex: 1 1 100%;
+      gap: 0;
+    }
+    .logo-box { align-self: center; padding-bottom: 0.15rem; }
+    .nav-style-1-tabs { width: 100%; justify-content: flex-start; }
+    .search-box { display: none; }  /* ซ่อนช่องค้นหาบนจอแคบ ให้แท็บเห็นครบ */
   }
 
   /* ฟุตเตอร์ */
