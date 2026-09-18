@@ -776,6 +776,43 @@
     document.body.classList.add('has-bg');
   }
 
+  /* ช่องค้นหา: พิมพ์เพื่อกรองการ์ดตามชื่อ/รายละเอียด (ค้นข้ามทุกแท็บ) */
+  function setupSearch() {
+    const input = document.querySelector('.search-box input');
+    if (!input) return;
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      const sections = document.querySelectorAll('.content-area .fade-content');
+
+      if (!q) {
+        // ค่าว่าง -> กลับไปแสดงเฉพาะแท็บที่เลือกอยู่
+        const activeBtn = document.querySelector('.nav-style-1-tab.active');
+        const target = activeBtn
+          ? (activeBtn.dataset.target || ('style1-content-' + activeBtn.dataset.tab))
+          : null;
+        sections.forEach(sec => {
+          sec.querySelectorAll('.card').forEach(c => { c.style.display = ''; });
+          if (sec.id === target) { sec.style.display = 'grid'; sec.classList.add('show'); }
+          else { sec.classList.remove('show'); sec.style.display = 'none'; }
+        });
+        return;
+      }
+
+      // มีคำค้น -> แสดงการ์ดที่ตรงจากทุกแท็บ
+      sections.forEach(sec => {
+        let any = false;
+        sec.querySelectorAll('.card').forEach(c => {
+          const match = c.textContent.toLowerCase().includes(q);
+          c.style.display = match ? '' : 'none';
+          if (match) any = true;
+        });
+        sec.style.display = any ? 'grid' : 'none';
+        sec.classList.toggle('show', any);
+      });
+    });
+  }
+  setupSearch();
+
   (async function initFromSheet() {
     if (!SHEET_CSV_URL) { setBanner(BANNER_URL_FALLBACK); renderFooter([]); return; }
     try {
