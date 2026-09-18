@@ -835,12 +835,14 @@
       img.src = toDirectImage(l.link);
       img.alt = l.title || 'โลโก้';
       img.loading = 'lazy';
+      if (l.title_size) img.style.height = /^\d+$/.test(l.title_size) ? l.title_size + 'px' : l.title_size; // ความสูงโลโก้
       img.onerror = () => { img.style.display = 'none'; };
       item.appendChild(img);
       if (l.title) {
         const cap = document.createElement('span');
         cap.className = 'logo-title';
         cap.textContent = l.title;
+        if (l.detail_size) cap.style.fontSize = /^\d+$/.test(l.detail_size) ? l.detail_size + 'px' : l.detail_size; // ขนาดชื่อ
         item.appendChild(cap);
       }
       box.appendChild(item);
